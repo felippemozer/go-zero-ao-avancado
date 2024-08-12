@@ -36,6 +36,7 @@ func Test_NewCampaign(t *testing.T) {
 	assert.Equal(c.Name, name)
 	assert.Equal(c.Content, content)
 	assert.Len(c.Contacts, len(emails))
+	assert.Equal(Pending, c.Status)
 }
 
 func Test_NewCampaign_MustValidateNameMin(t *testing.T) {
