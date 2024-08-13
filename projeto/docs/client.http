@@ -2,7 +2,7 @@ GET http://localhost:3000/campaign/cqtc8jmari99bft65is0
 
 ###
 
-POST http://localhost:3000/campaigns
+POST http://localhost:3000/campaign
 
 {
     "name": "Campaign Alfa",
@@ -12,3 +12,7 @@ POST http://localhost:3000/campaigns
         "hillary@teste.com"
     ]
 }
+
+###
+
+PATCH http://localhost:3000/campaign/cancel/cqtc8jmari99bft65is0
