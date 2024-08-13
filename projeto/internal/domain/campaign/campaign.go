@@ -14,7 +14,8 @@ const (
 )
 
 type Contact struct {
-	Email string `validate:"email"`
+	Email      string `validate:"email"`
+	CampaignId string
 }
 
 type Campaign struct {
