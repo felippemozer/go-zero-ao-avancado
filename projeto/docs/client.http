@@ -5,14 +5,18 @@ GET http://localhost:3000/campaign/cqtc8jmari99bft65is0
 POST http://localhost:3000/campaign
 
 {
-    "name": "Campaign Alfa",
+    "name": "Campaign Beta",
     "content": "change password",
     "emails": [
-        "james@teste.com",
-        "hillary@teste.com"
+        "hello@teste.com",
+        "bye@teste.com"
     ]
 }
 
 ###
 
-PATCH http://localhost:3000/campaign/cancel/cqtc8jmari99bft65is0
+PATCH http://localhost:3000/campaign/cancel/cqtcv2eari91c349ln1g
+
+###
+
+DELETE http://localhost:3000/campaign/cqtc846ari99bft65ipg
