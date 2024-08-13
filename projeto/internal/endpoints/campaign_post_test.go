@@ -3,6 +3,7 @@ package endpoints
 import (
 	"bytes"
 	"emailn/internal/contract"
+	localmock "emailn/internal/test/mock"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -13,20 +14,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type serviceMock struct {
-	mock.Mock
-}
-
-func (s *serviceMock) Create(newCampaign contract.NewCampaign) (string, error) {
-	args := s.Called(newCampaign)
-	return args.String(0), args.Error(1)
-}
-
-func (s *serviceMock) GetBy(campaignID string) (*contract.GetCampaignByIdResponse, error) {
-	args := s.Called(campaignID)
-	return nil, args.Error(1)
-}
-
 func Test_CampaignPost_SaveNewCampaign(t *testing.T) {
 	assert := assert.New(t)
 	campaign := contract.NewCampaign{
@@ -36,7 +23,7 @@ func Test_CampaignPost_SaveNewCampaign(t *testing.T) {
 			"teste@teste.com",
 		},
 	}
-	service := new(serviceMock)
+	service := new(localmock.CampaignServiceMock)
 	service.On("Create", mock.MatchedBy(func(c contract.NewCampaign) bool {
 		if c.Name == campaign.Name && c.Content == campaign.Content {
 			return true
@@ -66,7 +53,7 @@ func Test_CampaignPost_Error(t *testing.T) {
 			"teste@teste.com",
 		},
 	}
-	service := new(serviceMock)
+	service := new(localmock.CampaignServiceMock)
 	service.On("Create", mock.Anything).Return("", errors.New("error"))
 	handler := Handler{
 		CampaignService: service,
