@@ -3,6 +3,7 @@ package campaign
 import (
 	"emailn/internal/contract"
 	localerrors "emailn/internal/local-errors"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,6 +40,14 @@ func (r *repositoryMock) Save(c *Campaign) error {
 func (r *repositoryMock) Get() ([]Campaign, error) {
 	// args := r.Called(c)
 	return nil, nil
+}
+
+func (r *repositoryMock) GetBy(id string) (*Campaign, error) {
+	args := r.Called(id)
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*Campaign), nil
 }
 
 func Test_Create_Campaign(t *testing.T) {
@@ -90,4 +99,38 @@ func Test_Create_ValidateRepositoryError(t *testing.T) {
 	_, err := service.Create(newCampaign)
 
 	assert.EqualError(err, localerrors.ErrInternal.Error())
+}
+
+func Test_GetById_Success(t *testing.T) {
+	assert := assert.New(t)
+	campaign := Campaign{
+		ID:      "1",
+		Name:    newCampaign.Name,
+		Content: newCampaign.Content,
+		Status:  Pending,
+	}
+	repositoryMock := new(repositoryMock)
+	repositoryMock.On("GetBy", mock.MatchedBy(func(id string) bool {
+		return id == campaign.ID
+	})).Return(&campaign, nil)
+	service.Repository = repositoryMock
+
+	resp, err := service.GetBy(campaign.ID)
+
+	assert.Nil(err)
+	assert.Equal(resp.ID, campaign.ID)
+	assert.Equal(resp.Name, campaign.Name)
+	assert.Equal(resp.Content, campaign.Content)
+	assert.Equal(resp.Status, campaign.Status)
+}
+
+func Test_GetById_Error(t *testing.T) {
+	assert := assert.New(t)
+	repositoryMock := new(repositoryMock)
+	repositoryMock.On("GetBy", mock.Anything).Return(nil, errors.New("error"))
+	service.Repository = repositoryMock
+
+	_, err := service.GetBy("1")
+
+	assert.Error(err)
 }
