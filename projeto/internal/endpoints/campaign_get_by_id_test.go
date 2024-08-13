@@ -3,7 +3,7 @@ package endpoints
 import (
 	"emailn/internal/contract"
 	"emailn/internal/domain/campaign"
-	localmock "emailn/internal/test/mock"
+	localmock "emailn/internal/test/local-mock"
 	"errors"
 	"net/http"
 	"net/http/httptest"
