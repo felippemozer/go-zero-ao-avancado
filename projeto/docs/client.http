@@ -1,13 +1,14 @@
-GET http://localhost:3000/campaigns
+GET http://localhost:3000/campaign/cqtc8jmari99bft65is0
 
 ###
 
 POST http://localhost:3000/campaigns
 
 {
-    "name": "Campaign Y",
+    "name": "Campaign Alfa",
     "content": "change password",
     "emails": [
-        "teste@teste.com"
+        "james@teste.com",
+        "hillary@teste.com"
     ]
 }
