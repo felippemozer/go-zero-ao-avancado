@@ -27,7 +27,7 @@ func main() {
 		Repository: &database.CampaignRepository{},
 	}
 	handler := endpoints.Handler{
-		CampaignService: campaignService,
+		CampaignService: &campaignService,
 	}
 	r.Get("/campaigns", endpoints.HandlerError(handler.CampaignGet))
 	r.Post("/campaigns", endpoints.HandlerError(handler.CampaignPost))
