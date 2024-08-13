@@ -13,11 +13,11 @@ type EndpointFunc func(w http.ResponseWriter, r *http.Request) (interface{}, int
 func HandlerError(endpointFunc EndpointFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		obj, status, err := endpointFunc(w, r)
-		if err != nil {
+		if err != nil || status >= http.StatusBadRequest {
 			if errors.Is(err, localerrors.ErrInternal) {
 				render.Status(r, http.StatusInternalServerError)
 			} else {
-				render.Status(r, http.StatusBadRequest)
+				render.Status(r, status)
 			}
 			render.JSON(w, r, map[string]string{
 				"error": err.Error(),
@@ -25,9 +25,12 @@ func HandlerError(endpointFunc EndpointFunc) http.HandlerFunc {
 			return
 		}
 
-		render.Status(r, status)
-		if obj != nil {
-			render.JSON(w, r, obj)
+		if obj == nil || status == http.StatusNoContent {
+			render.NoContent(w, r)
+			return
 		}
+
+		render.Status(r, status)
+		render.JSON(w, r, obj)
 	})
 }
