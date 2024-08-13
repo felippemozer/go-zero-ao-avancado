@@ -10,6 +10,7 @@ type Service interface {
 	Create(newCampaign contract.NewCampaign) (string, error)
 	GetBy(campaignID string) (*contract.GetCampaignByIdResponse, error)
 	Cancel(campaignID string) error
+	Delete(campaignID string) error
 }
 
 type ServiceImp struct {
@@ -23,7 +24,7 @@ func (s *ServiceImp) Create(newCampaign contract.NewCampaign) (string, error) {
 		return "", err
 	}
 
-	err = s.Repository.Save(c)
+	err = s.Repository.Create(c)
 
 	if err != nil {
 		return "", localerrors.ErrInternal
@@ -40,10 +41,11 @@ func (s *ServiceImp) GetBy(campaignID string) (*contract.GetCampaignByIdResponse
 	}
 
 	return &contract.GetCampaignByIdResponse{
-		ID:      campaign.ID,
-		Name:    campaign.Name,
-		Content: campaign.Content,
-		Status:  campaign.Status,
+		ID:                   campaign.ID,
+		Name:                 campaign.Name,
+		Content:              campaign.Content,
+		Status:               campaign.Status,
+		AmountOfEmailsToSend: len(campaign.Contacts),
 	}, nil
 }
 
@@ -63,7 +65,27 @@ func (s *ServiceImp) Cancel(campaignID string) error {
 	}
 
 	campaign.Cancel()
-	err = s.Repository.Save(campaign)
+	err = s.Repository.Update(campaign)
+	if err != nil {
+		return localerrors.ErrInternal
+	}
+
+	return nil
+}
+
+func (s *ServiceImp) Delete(campaignID string) error {
+	campaign, err := s.Repository.GetBy(campaignID)
+
+	if err != nil {
+		return localerrors.ErrInternal
+	}
+
+	if campaign.Status == Started {
+		return errors.New("Campaign status has started and has not finished")
+	}
+
+	campaign.Delete()
+	err = s.Repository.Delete(campaign)
 	if err != nil {
 		return localerrors.ErrInternal
 	}

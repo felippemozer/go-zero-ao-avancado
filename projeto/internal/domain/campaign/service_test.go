@@ -28,21 +28,21 @@ var (
 	}
 )
 
-type repositoryMock struct {
+type RepositoryMock struct {
 	mock.Mock
 }
 
-func (r *repositoryMock) Save(c *Campaign) error {
+func (r *RepositoryMock) Create(c *Campaign) error {
 	args := r.Called(c)
 	return args.Error(0)
 }
 
-func (r *repositoryMock) Get() ([]Campaign, error) {
+func (r *RepositoryMock) Get() ([]Campaign, error) {
 	// args := r.Called(c)
 	return nil, nil
 }
 
-func (r *repositoryMock) GetBy(id string) (*Campaign, error) {
+func (r *RepositoryMock) GetBy(id string) (*Campaign, error) {
 	args := r.Called(id)
 	if args.Error(1) != nil {
 		return nil, args.Error(1)
@@ -50,9 +50,19 @@ func (r *repositoryMock) GetBy(id string) (*Campaign, error) {
 	return args.Get(0).(*Campaign), nil
 }
 
+func (r *RepositoryMock) Update(c *Campaign) error {
+	args := r.Called(c)
+	return args.Error(0)
+}
+
+func (r *RepositoryMock) Delete(c *Campaign) error {
+	args := r.Called(c)
+	return args.Error(0)
+}
+
 func Test_Create_Campaign(t *testing.T) {
 	assert := assert.New(t)
-	repositoryMock := new(repositoryMock)
+	repositoryMock := new(RepositoryMock)
 	repositoryMock.On("Save", mock.Anything).Return(nil)
 	service.Repository = repositoryMock
 
@@ -63,7 +73,7 @@ func Test_Create_Campaign(t *testing.T) {
 }
 
 func Test_Create_SaveCampaign(t *testing.T) {
-	repositoryMock := new(repositoryMock)
+	repositoryMock := new(RepositoryMock)
 	repositoryMock.On("Save", mock.MatchedBy(func(campaign *Campaign) bool {
 		if campaign.Name != newCampaign.Name || campaign.Content != newCampaign.Content || len(campaign.Contacts) != len(emails) {
 			return false
@@ -92,7 +102,7 @@ func Test_Create_ValidateDomainError(t *testing.T) {
 
 func Test_Create_ValidateRepositoryError(t *testing.T) {
 	assert := assert.New(t)
-	repositoryMock := new(repositoryMock)
+	repositoryMock := new(RepositoryMock)
 	repositoryMock.On("Save", mock.Anything).Return(localerrors.ErrInternal)
 	service.Repository = repositoryMock
 
@@ -109,7 +119,7 @@ func Test_GetById_Success(t *testing.T) {
 		Content: newCampaign.Content,
 		Status:  Pending,
 	}
-	repositoryMock := new(repositoryMock)
+	repositoryMock := new(RepositoryMock)
 	repositoryMock.On("GetBy", mock.MatchedBy(func(id string) bool {
 		return id == campaign.ID
 	})).Return(&campaign, nil)
@@ -126,7 +136,7 @@ func Test_GetById_Success(t *testing.T) {
 
 func Test_GetById_Error(t *testing.T) {
 	assert := assert.New(t)
-	repositoryMock := new(repositoryMock)
+	repositoryMock := new(RepositoryMock)
 	repositoryMock.On("GetBy", mock.Anything).Return(nil, errors.New("error"))
 	service.Repository = repositoryMock
 
