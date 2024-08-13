@@ -2,6 +2,7 @@ package database
 
 import (
 	"emailn/internal/domain/campaign"
+	"fmt"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,7 +16,12 @@ func NewDb() *gorm.DB {
 		panic("fail to connect to database")
 	}
 
-	db.AutoMigrate(&campaign.Campaign{}, &campaign.Contact{})
+	err = db.AutoMigrate(&campaign.Campaign{}, &campaign.Contact{})
+	if err != nil {
+		panic("error on initial database migration")
+	} else {
+		fmt.Println("Migration success")
+	}
 
 	return db
 }
