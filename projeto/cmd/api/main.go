@@ -18,7 +18,7 @@ type Product struct {
 }
 
 func main() {
-	godotenv.Load()
+	godotenv.Load("../../.env")
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)

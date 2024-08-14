@@ -16,8 +16,13 @@ func (r *CampaignRepositoryMock) Create(c *campaign.Campaign) error {
 }
 
 func (r *CampaignRepositoryMock) Get() ([]campaign.Campaign, error) {
-	// args := r.Called(c)
-	return nil, nil
+	args := r.Called()
+	return args.Get(0).([]campaign.Campaign), nil
+}
+
+func (r *CampaignRepositoryMock) GetStarted() ([]campaign.Campaign, error) {
+	args := r.Called()
+	return args.Get(0).([]campaign.Campaign), nil
 }
 
 func (r *CampaignRepositoryMock) GetBy(id string) (*campaign.Campaign, error) {

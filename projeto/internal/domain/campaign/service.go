@@ -100,6 +100,18 @@ func (s *ServiceImp) Delete(campaignID string) error {
 	return nil
 }
 
+func (s *ServiceImp) SendEmailAndUpdateStatus(campaign *Campaign) error {
+	err := s.SendMail(campaign)
+	if err != nil {
+		campaign.Fail()
+	} else {
+		campaign.Done()
+	}
+	s.Repository.Update(campaign)
+
+	return err
+}
+
 func (s *ServiceImp) Start(campaignID string) error {
 	campaign, err := s.Repository.GetBy(campaignID)
 
@@ -111,15 +123,7 @@ func (s *ServiceImp) Start(campaignID string) error {
 		return errors.New("Campaign is not pending start")
 	}
 
-	go func() {
-		err = s.SendMail(campaign)
-		if err != nil {
-			campaign.Fail()
-		} else {
-			campaign.Done()
-		}
-		s.Repository.Update(campaign)
-	}()
+	go s.SendEmailAndUpdateStatus(campaign)
 
 	campaign.Start()
 	err = s.Repository.Update(campaign)

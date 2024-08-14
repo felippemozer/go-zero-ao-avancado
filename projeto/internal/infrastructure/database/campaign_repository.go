@@ -22,6 +22,16 @@ func (c *CampaignRepository) Get() ([]campaign.Campaign, error) {
 	return campaigns, tx.Error
 }
 
+func (c *CampaignRepository) GetStarted() ([]campaign.Campaign, error) {
+	var campaigns []campaign.Campaign
+	tx := c.Db.Preload("Contacts").Find(&campaigns,
+		"status = ? and date_part('minute', now()::timestamp - updated_on::timestamp) >= ?",
+		campaign.StatusStarted,
+		1,
+	)
+	return campaigns, tx.Error
+}
+
 func (c *CampaignRepository) GetBy(id string) (*campaign.Campaign, error) {
 	var campaign campaign.Campaign
 	tx := c.Db.Preload("Contacts").First(&campaign, "id = ?", id)
