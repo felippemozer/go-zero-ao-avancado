@@ -1,8 +1,18 @@
-GET http://localhost:3000/campaign/cqtc8jmari99bft65is0
+@url = http://localhost:3000
+@identity_provider = http://localhost:8080
+
+###
+GET {{url}}/health
 
 ###
 
-POST http://localhost:3000/campaign
+GET {{url}}/campaign/{{campaign_id}}
+Authorization: Bearer {{access_token}}
+
+###
+# @name campaign_create
+POST {{url}}/campaign
+Authorization: Bearer {{access_token}}
 
 {
     "name": "Campaign Beta",
@@ -14,9 +24,26 @@ POST http://localhost:3000/campaign
 }
 
 ###
-
-PATCH http://localhost:3000/campaign/cancel/cqtcv2eari91c349ln1g
+@campaign_id = {{campaign_create.response.body.id}}
 
 ###
+PATCH {{url}}/campaign/cancel/{{campaign_id}}
+Authorization: Bearer {{access_token}}
 
-DELETE http://localhost:3000/campaign/cqtc846ari99bft65ipg
+###
+PATCH {{url}}/campaign/start/{{campaign_id}}
+Authorization: Bearer {{access_token}}
+
+###
+DELETE {{url}}/campaign/{{campaign_id}}
+Authorization: Bearer {{access_token}}
+
+###
+# @name token
+POST {{identity_provider}}/realms/emailn/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id=emailn&username=felippemozer22@gmail.com&password=123456&grant_type=password
+
+###
+@access_token = {{token.response.body.access_token}}

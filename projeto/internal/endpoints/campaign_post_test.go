@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"bytes"
+	"context"
 	"emailn/internal/contract"
 	localmock "emailn/internal/test/local-mock"
 	"encoding/json"
@@ -14,6 +15,17 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func setup(campaign contract.NewCampaign) (*http.Request, *httptest.ResponseRecorder) {
+	var body bytes.Buffer
+	json.NewEncoder(&body).Encode(campaign)
+	req, _ := http.NewRequest("POST", "/", &body)
+	ctx := context.WithValue(req.Context(), "email", campaign.CreatedBy)
+	req = req.WithContext(ctx)
+	res := httptest.NewRecorder()
+
+	return req, res
+}
+
 func Test_CampaignPost_SaveNewCampaign(t *testing.T) {
 	assert := assert.New(t)
 	campaign := contract.NewCampaign{
@@ -22,10 +34,11 @@ func Test_CampaignPost_SaveNewCampaign(t *testing.T) {
 		Emails: []string{
 			"teste@teste.com",
 		},
+		CreatedBy: "teste@teste.com.br",
 	}
 	service := new(localmock.CampaignServiceMock)
 	service.On("Create", mock.MatchedBy(func(c contract.NewCampaign) bool {
-		if c.Name == campaign.Name && c.Content == campaign.Content {
+		if c.Name == campaign.Name && c.Content == campaign.Content && c.CreatedBy == campaign.CreatedBy {
 			return true
 		}
 		return false
@@ -33,10 +46,7 @@ func Test_CampaignPost_SaveNewCampaign(t *testing.T) {
 	handler := Handler{
 		CampaignService: service,
 	}
-	var body bytes.Buffer
-	json.NewEncoder(&body).Encode(campaign)
-	req, _ := http.NewRequest("POST", "/", &body)
-	res := httptest.NewRecorder()
+	req, res := setup(campaign)
 
 	_, status, err := handler.CampaignPost(res, req)
 
@@ -52,16 +62,14 @@ func Test_CampaignPost_Error(t *testing.T) {
 		Emails: []string{
 			"teste@teste.com",
 		},
+		CreatedBy: "teste@teste.com",
 	}
 	service := new(localmock.CampaignServiceMock)
 	service.On("Create", mock.Anything).Return("", errors.New("error"))
 	handler := Handler{
 		CampaignService: service,
 	}
-	var body bytes.Buffer
-	json.NewEncoder(&body).Encode(campaign)
-	req, _ := http.NewRequest("POST", "/", &body)
-	res := httptest.NewRecorder()
+	req, res := setup(campaign)
 
 	_, _, err := handler.CampaignPost(res, req)
 

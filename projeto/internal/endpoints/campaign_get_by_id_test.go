@@ -19,7 +19,7 @@ func Test_CampaignGetByID_Success(t *testing.T) {
 		ID:      "1",
 		Name:    "Teste",
 		Content: "Teste",
-		Status:  campaign.Pending,
+		Status:  campaign.StatusPending,
 	}
 	service := new(localmock.CampaignServiceMock)
 	service.On("GetBy", mock.Anything).Return(&campaign, nil)
